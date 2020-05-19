@@ -1,2 +1,2 @@
-FROM vikram18docker/vikramapache
+FROM vikram18docker/new_dockerfile
 ADD . /var/www/html
