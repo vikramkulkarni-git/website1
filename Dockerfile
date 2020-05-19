@@ -1,2 +1,2 @@
-FROM vikram18docker/new_dockerfile
+FROM vikram18docker/wordpress
 ADD . /var/www/html
