@@ -1,0 +1,50 @@
+provider "aws" {                                                                                             
+  #access_key = ""                                                                                           
+  #secret_key = ""                                                                                           
+  region     = "us-east-1"                                                                                   
+}                                                                                                            
+                                                                                                             
+variable "zones" {                                                                                           
+  default = ["us-east-1a","us-east-1a", "us-east-1a","us-east-1a"]                                           
+}                                                                                                            
+                                                                                                             
+resource "aws_instance" "frontend" {                                                                         
+  count                 = 4                                                                                  
+#for_each = "${var.zones}"                                                                                   
+  availability_zone     = "${var.zones[count.index]}"                                                        
+  ami                   = "ami-039a49e70ea773ffc"                                                            
+  instance_type         = "t2.micro"                                                                         
+lifecycle {                                                                                                  
+    create_before_destroy = true                                                                             
+  }                                                                                                          
+}                                                                                                            
+                                                                                                             
+provider "aws" {                                                                                             
+  #access_key = ""                                                                                           
+  #secret_key = ""                                                                                           
+  alias       = "us-east-1"                                                                                  
+  region     = "us-east-1"                                                                                   
+}                                                                                                            
+                                                                                                             
+variable "zonesb" {                                                                                          
+  default = ["us-east-1b","us-east-1b", "us-east-1b","us-east-1b"]                                           
+}                                                                                                            
+                                                                                                             
+resource "aws_instance" "backend" {                                                                          
+#for_each = "${var.zonesb[each.value]}"                                                                      
+  count                 = 4                                                                                  
+  availability_zone     = "${var.zonesb[count.index]}"                                                       
+  ami                   = "ami-039a49e70ea773ffc"                                                            
+  instance_type         = "t2.micro"                                                                         
+lifecycle {                                                                                                  
+    prevent_destroy = false                                                                                  
+  }                                                                                                          
+}                                                                                                            
+                                                                                                             
+output "frontend_ip" {                                                                                       
+  value = "${aws_instance.frontend.*.public_ip}"                                                             
+}                                                                                                            
+                                                                                                             
+output "backend_ips" {                                                                                       
+  value = "${list ("${aws_instance.backend.*.public_ip}" ,"${aws_instance.backend.*.public_dns}")}"          
+}                                                                                                            
